@@ -2,6 +2,7 @@ package org.utfpr.mf.mf_api.service;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.utfpr.mf.mf_api.MfApiApplication;
@@ -15,7 +16,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 @Service
-public class TempDatabaseService {
+public class TempDatabaseService implements AutoCloseable {
 
     private RdbDatabase rdbDatabase;
     private HashMap<String, TempDatabase> tempDatabases = new HashMap<>();
@@ -48,8 +49,10 @@ public class TempDatabaseService {
         }
     }
 
-    @PreDestroy
-    public void destroy() throws SQLException {
+
+    @Override
+    public void close() throws Exception {
+        System.out.println("Destroying TempDatabaseService");
         for(var tdb : tempDatabases.values()) {
             tdb.drop();
         }
